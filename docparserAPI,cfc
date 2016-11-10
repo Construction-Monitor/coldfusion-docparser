@@ -1,0 +1,67 @@
+// https://dev.docparser.com/?json#introduction
+component {
+	
+	function init(string key){
+		variables.apiKey = key;
+		variables.baseUrl = "https://api.docparser.com/v1/";
+		return this;
+	}
+	
+	private function getHttpService(urlPart){
+		var httpService = new http(method="get", url=variables.baseUrl & urlPart, authType="BASIC");
+		httpService.addParam(type="header", name="Authorization", value="Basic " & variables.apiKey);
+		return httpService;
+	}
+	
+	private function sendHTTP(httpService){
+		var httpResponse = httpService.send().getPrefix();
+		if(structKeyExists(httpResponse,"filecontent") && isJSON(trim(httpResponse.fileContent))){
+			var fileContent = deserializeJSON(httpResponse.fileContent);
+			structInsert(httpResponse, "fileContent", fileContent, true);
+		}
+		return httpResponse;
+	}
+	
+	//https://dev.docparser.com/?json#authentication
+	function ping(){
+		var httpService = getHttpService("ping");
+		return sendHTTP(httpService);
+	}
+	
+	//https://dev.docparser.com/?json#parsers
+	function listParsers(){
+		var httpService = getHttpService("parsers");
+		return sendHTTP(httpService);
+	}
+	
+	//https://dev.docparser.com/?json#import-document
+	function documentUpload(string localPath, string parserId){
+		var httpService = getHttpService("document/upload/" & parserId);
+		httpService.setMethod("post");
+		httpService.setMultipart("YES");
+		httpService.addParam(type="file", file=localPath, name="file");
+		return sendHTTP(httpService);
+	}
+	
+	//https://dev.docparser.com/?json#import-document
+	function documentFetch(string urlString, string parserId){
+		var httpService = getHttpService("document/fetch/" & parserId);
+		httpService.setMethod("post");
+		httpService.addParam(type="url", name="url", value=urlString);
+		return sendHTTP(httpService);
+	}
+	
+	//https://dev.docparser.com/?json#list7
+	function resultsList(string parserId, string format="object"){
+		var httpService = getHttpService("results/" & parserId);
+		httpService.addParam(type="url", name="format", value=format);
+		return sendHTTP(httpService);
+	}
+	
+	//https://dev.docparser.com/?json#get
+	function resultsGet(string parserId, string documentId, string format="object"){
+		var httpService = getHttpService("results/" & parserId & "/" & documentId);
+		httpService.addParam(type="url", name="format", value=format);
+		return sendHTTP(httpService);
+	}
+}
