@@ -17,11 +17,18 @@ component hint="https://dev.docparser.com/?json##introduction"{
 	//Sends Raw Request and does basic parse on response
 	private function sendHTTP(httpService){
 		var httpResponse = httpService.send().getPrefix();
-		if(structKeyExists(httpResponse,"filecontent") && isJSON(trim(httpResponse.fileContent))){
-			var fileContent = deserializeJSON(httpResponse.fileContent);
-			structInsert(httpResponse, "fileContent", fileContent, true);
+		//Adobe Coldfusion does not allow you to edit the struct from http.send(), but Lucee does
+		//Adobe Coldfusion also does not allow you to structcopy() it.
+		//So the solution is to do a loop and copy all variables yourself
+		var newHttpResponse = structNew();
+		for(var key in httpResponse){
+			structInsert(newHttpResponse,key,httpResponse[key],true);
 		}
-		return httpResponse;
+		if(structKeyExists(newHttpResponse,"Filecontent") && isJSON(trim(newHttpResponse.filecontent))){
+			var fileContent = deserializeJSON(newHttpResponse.fileContent);
+			structInsert(newHttpResponse, "Filecontent", fileContent, true);
+		}
+		return newHttpResponse;
 	}
 	
 	//All further functions are the API endpoints
