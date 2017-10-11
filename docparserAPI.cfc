@@ -42,18 +42,24 @@ component hint="https://dev.docparser.com/?json##introduction"{
 		return sendHTTP(httpService);
 	}
 	
-	function documentUpload(string localPath, string parserId) hint="https://dev.docparser.com/?json##import-document"{
+	function documentUpload(string localPath, string parserId, string remoteId="") hint="https://dev.docparser.com/?json##import-document"{
 		var httpService = getHttpService("document/upload/" & parserId);
 		httpService.setMethod("post");
 		httpService.setMultipart("YES");
 		httpService.addParam(type="file", file=localPath, name="file");
+		if(len(remoteId)){
+			httpService.addParam(type="formfield", name="remote_id", value=remoteId);	
+		}
 		return sendHTTP(httpService);
 	}
 	
-	function documentFetch(string urlString, string parserId) hint="https://dev.docparser.com/?json##import-document"{
+	function documentFetch(string urlString, string parserId, string remoteId="") hint="https://dev.docparser.com/?json##import-document"{
 		var httpService = getHttpService("document/fetch/" & parserId);
 		httpService.setMethod("post");
-		httpService.addParam(type="url", name="url", value=urlString);
+		httpService.addParam(type="formfield", name="url", value=urlString);
+		if(len(remoteId)){
+			httpService.addParam(type="formfield", name="remote_id", value=remoteId);
+		}
 		return sendHTTP(httpService);
 	}
 	
