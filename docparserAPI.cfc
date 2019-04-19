@@ -56,6 +56,7 @@ component hint="https://dev.docparser.com/?json##introduction"{
 	function documentFetch(string urlString, string parserId, string remoteId="") hint="https://dev.docparser.com/?json##import-document"{
 		var httpService = getHttpService("document/fetch/" & parserId);
 		httpService.setMethod("post");
+		httpService.setMultipart("YES"); //Fixes a bug where a URL that has things that need to be URL encoded, would get un-url-encoded when sent to the remote server
 		httpService.addParam(type="formfield", name="url", value=urlString);
 		if(len(remoteId)){
 			httpService.addParam(type="formfield", name="remote_id", value=remoteId);
